@@ -85,6 +85,7 @@ start-geth: ## start an ephemeral `geth` node with docker
 	--http \
 	--http.addr 0.0.0.0 \
 	--http.api eth,net \
+	--http.corsdomain "*" \
 	--authrpc.addr 0.0.0.0 \
 	--authrpc.jwtsecret $(JWT_PATH) \
 	--authrpc.vhosts "*" \
