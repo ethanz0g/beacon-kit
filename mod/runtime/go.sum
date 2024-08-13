@@ -71,8 +71,6 @@ github.com/berachain/beacon-kit/mod/p2p v0.0.0-20240618214413-d5ec0e66b3dd h1:QH
 github.com/berachain/beacon-kit/mod/p2p v0.0.0-20240618214413-d5ec0e66b3dd/go.mod h1:ft214cxJaqrRPOuAjpYwgA9AOElJnHrDZZEQ0jZPWwQ=
 github.com/berachain/beacon-kit/mod/primitives v0.0.0-20240808194557-e72e74f58197 h1:hk8N7Q1CCKMW/05pRu5rbfRnbTUou5TjULaeeRtbU+E=
 github.com/berachain/beacon-kit/mod/primitives v0.0.0-20240808194557-e72e74f58197/go.mod h1:7kNnd9rhYjyZJHuXs/ku5drL9EMM64ekJVR181fGmbM=
-github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20240808182639-7bdbf06a94f2 h1:4qwOPga+dKeDelSJ6pseasQq6fcjd7iXhah0y7enuco=
-github.com/berachain/cosmos-sdk v0.46.0-beta2.0.20240808182639-7bdbf06a94f2/go.mod h1:DUyJJMMuFJ9OZAhnFMLA0KTFGoVw61p8wnqtV3Wgx3c=
 github.com/bgentry/speakeasy v0.2.0 h1:tgObeVOf8WAvtuAX6DhJ4xks4CFNwPDZiqzGqIHE51E=
 github.com/bgentry/speakeasy v0.2.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/btcsuite/btcd/btcec/v2 v2.3.3 h1:6+iXlDKE8RMtKsvK0gshlXIuPbyWM/h84Ensb7o3sC0=
@@ -173,6 +171,8 @@ github.com/envoyproxy/go-control-plane v0.9.9-0.20201210154907-fd9021fe5dad/go.m
 github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021/go.mod h1:AFq3mo9L8Lqqiid3OhADV3RfLJnjiw63cSpi+fDTRC0=
 github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.mod h1:KJwIaB5Mv44NWtYuAOFCVOjcI94vtpEz2JU/D2v6IjE=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
+github.com/ethanz0g/cosmos-sdk v0.46.0-beta2.0.20240808182639-7bdbf06a94f2 h1:dBYesVHsr7a+9YJGi3l9Pfhm8kNwFDuNUeaIm951Tx0=
+github.com/ethanz0g/cosmos-sdk v0.46.0-beta2.0.20240808182639-7bdbf06a94f2/go.mod h1:DUyJJMMuFJ9OZAhnFMLA0KTFGoVw61p8wnqtV3Wgx3c=
 github.com/fatih/color v1.17.0 h1:GlRw1BRJxkpqUCBKzKOw098ed57fEsKeNjpTe3cSjK4=
 github.com/fatih/color v1.17.0/go.mod h1:YZ7TlrGPkiz6ku9fK3TLD/pl3CpsiFyu8N92HLgmosI=
 github.com/felixge/httpsnoop v1.0.4 h1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=
