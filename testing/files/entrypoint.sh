@@ -94,7 +94,8 @@ BEACON_START_CMD="$BINARY_PATH start --pruning=nothing "$TRACE" \
 --api.enable --api.swagger --minimum-gas-prices=0.0001abgt \
 --home $HOMEDIR --beacon-kit.engine.jwt-secret-path ${JWT_SECRET_PATH} \
 --beacon-kit.block-store-service.enabled --beacon-kit.block-store-service.pruner-enabled \
---beacon-kit.node-api.enabled --beacon-kit.node-api.logging" 
+--beacon-kit.node-api.enabled --beacon-kit.node-api.logging \
+--with-comet=false --transport grpc"
 
 # Conditionally add the rpc-dial-url flag if RPC_DIAL_URL is not empty
 if [ -n "$RPC_DIAL_URL" ]; then
