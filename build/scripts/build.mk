@@ -81,6 +81,14 @@ endif
 # This allows us to reuse the build target steps for both go build and go install
 BUILD_TARGETS := build install
 
+## Show build_tags for "dlv debug"
+show-build-tags:
+	@echo $(build_tags)
+
+## Show ldflags for "dlv debug"
+show-build-ldflags:
+	@echo $(ldflags)
+
 ## Build: 
 build: BUILD_ARGS=-o $(OUT_DIR)/beacond ## build `beacond`
 

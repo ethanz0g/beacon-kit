@@ -51,11 +51,7 @@ ETH_GENESIS=$(resolve_path "./testing/files/eth-genesis.json")
 set -e
 
 # Reinstall daemon
-if [[ $RUN_MODE == "debug" ]]; then
-  COSMOS_BUILD_OPTIONS=nostrip make build
-else
-  make build
-fi
+make build
 
 overwrite="N"
 if [ -d $HOMEDIR ]; then
@@ -85,7 +81,7 @@ fi
 
 BINARY_PATH="./build/bin/beacond"
 if [[ $RUN_MODE == "debug" ]]; then
-  BINARY_PATH="dlv exec ./build/bin/beacond --"
+  BINARY_PATH="dlv debug ./beacond/cmd --build-flags=\"-mod=readonly -tags '$DLV_DEBUG_BUILD_TAGS' -ldflags '$DLV_DEBUG_BUILD_LDFLAGS'\" --"
 fi
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)

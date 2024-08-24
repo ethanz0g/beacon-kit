@@ -40,8 +40,13 @@ start-bartio:
 	CHAIN_SPEC=$(TESTNET_CHAIN_SPEC) \
 	${TESTAPP_FILES_DIR}/entrypoint.sh
 
+dlv_debug_build_tags = $(shell make show-build-tags)
+dlv_debug_build_ldflags = $(shell COSMOS_BUILD_OPTIONS=nostrip make show-build-ldflags)
+
 debug: ## run an ephemeral `beacond` node in debug mode
 	@RUN_MODE=debug \
+	DLV_DEBUG_BUILD_TAGS="$(dlv_debug_build_tags)" \
+	DLV_DEBUG_BUILD_LDFLAGS="$(dlv_debug_build_ldflags)" \
 	JWT_SECRET_PATH=$(JWT_PATH) \
 	CHAIN_SPEC=$(DEVNET_CHAIN_SPEC) \
 	${TESTAPP_FILES_DIR}/entrypoint.sh
