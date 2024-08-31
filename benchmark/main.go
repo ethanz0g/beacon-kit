@@ -7,20 +7,31 @@ import (
 	"log"
 	"math/big"
 
+	"github.com/berachain/beacon-kit/benchmark/producer"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+const (
+	accountCount = 100000
+)
+
 func main() {
-	rpcUrl, count := getParameters()
+	rpcUrl, _ := getParameters()
 
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 
+	g, err := producer.NewGenerator(accountCount, "faucet private key", client)
+	if err != nil {
+		log.Fatalf("Failed to create the generator: %v", err)
+	}
+
+	g.WarmUp()
 	// load all to-be-sent transactions
-	workload := getWorkload(count)
+	workload := g.GenerateGeneralTransfer(accountCount)
 
 	startBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
@@ -46,7 +57,7 @@ func main() {
 
 	totalTxCount := 0
 
-	// Iterate over the blocks from startHeight to the endHeight 
+	// Iterate over the blocks from startHeight to the endHeight
 	for blockNumber := startHeight.Add(startHeight, big.NewInt(1)); blockNumber.Cmp(endHeight) <= 0; blockNumber.Add(blockNumber, big.NewInt(1)) {
 		block, err := client.BlockByNumber(context.Background(), blockNumber)
 		if err != nil {
@@ -66,8 +77,8 @@ func main() {
 func getParameters() (string, int) {
 	// handle command line flags
 	rpcUrl := flag.String("rpc-url", "http://127.0.0.1:8545", "RPC url of the chain")
-        count := flag.Int("count", 10000, "The number of transactions to be sent")
-        flag.Parse()
+	count := flag.Int("count", 10000, "The number of transactions to be sent")
+	flag.Parse()
 
 	if *count > 1000000 {
 		log.Fatal("Too many transactions to be generated and sent")
