@@ -66,7 +66,7 @@ func (g *generatorImlp) WarmUp() error {
 		if err != nil {
 			return err
 		}
-		faucetAcct.Nonce = nonce + 1
+		faucetAcct.Nonce = nonce
 	}
 
 	for i := 0; i < int(g.accountMap.total); i++ {
@@ -75,7 +75,7 @@ func (g *generatorImlp) WarmUp() error {
 		if err != nil {
 			return err
 		}
-		thisAccount.Nonce = nonce + 1
+		thisAccount.Nonce = nonce
 	}
 
 	for i := 0; i < int(g.accountMap.total); i++ {
