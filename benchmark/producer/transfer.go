@@ -86,9 +86,16 @@ func (g *generatorImlp) WarmUp() {
 
 func (g *generatorImlp) generateTransaction(t *task) (*types.Transaction, error) {
 	ctx := context.Background()
-	nonce, err := g.client.PendingNonceAt(ctx, common.HexToAddress(t.fromAccount.Address))
-	if err != nil {
-		return nil, err
+	var nonce uint64
+	var err error
+	if t.fromAccount.Nonce == 0 {
+		nonce, err = g.client.PendingNonceAt(ctx, common.HexToAddress(t.fromAccount.Address))
+		if err != nil {
+			return nil, err
+		}
+		t.fromAccount.Nonce = nonce
+	} else {
+		nonce = t.fromAccount.GetAndIncrementNonce()
 	}
 
 	gasLimit := defaultTransferGasLimit

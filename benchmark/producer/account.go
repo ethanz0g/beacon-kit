@@ -9,7 +9,7 @@ import (
 
 type Account struct {
 	Index      uint32
-	Nonce      uint32
+	Nonce      uint64
 	Address    string
 	Checksum   string
 	PrivateKey []byte
@@ -44,7 +44,7 @@ func CreateFaucetAccount(privateKey string) Account {
 	}
 }
 
-func (a *Account) GetAndIncrementNonce() uint32 {
+func (a *Account) GetAndIncrementNonce() uint64 {
 	now := a.Nonce
 	a.Nonce += 1
 	return now
