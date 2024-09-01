@@ -13,7 +13,7 @@ func NewAccountMap(total uint32, faucetPrivateKey string) *AccountMap {
 		faucetAcct: CreateFaucetAccount(faucetPrivateKey),
 	}
 
-	for i := uint32(0); i < total; i++ {
+	for i := uint32(1); i <= total; i++ {
 		am.accounts = append(am.accounts, NewAccount(i))
 	}
 

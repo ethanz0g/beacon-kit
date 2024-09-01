@@ -1,29 +1,29 @@
 package producer
 
 import (
-	"bytes"
 	"encoding/hex"
 	"strings"
 	"time"
 
 	"crypto/ecdsa"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	"golang.org/x/crypto/sha3"
 	"golang.org/x/exp/rand"
 )
 
-func generateEthSecp256k1PrivateKeyByUint32(n uint32) *ecdsa.PrivateKey {
-	privKeyInt := new(big.Int).SetUint64(uint64(n))
-	curve := crypto.S256()
-	privateKey, err := ecdsa.GenerateKey(curve, bytes.NewReader(privKeyInt.Bytes()))
-	if err != nil {
-		panic(err)
-	}
+// func generateEthSecp256k1PrivateKeyByUint32(n uint32) *ecdsa.PrivateKey {
+// 	// privKeyInt := new(big.Int).SetUint64(uint64(n))
+// 	curve := crypto.S256()
+// 	byteSlice := make([]byte, 32)
+// 	binary.LittleEndian.PutUint32(byteSlice, n)
+// 	privateKey, err := ecdsa.GenerateKey(curve, bytes.NewReader(byteSlice))
+// 	if err != nil {
+// 		panic(errors.Wrapf(err, "failed to generate private key, n: %d, slice : %v", n, byteSlice))
+// 	}
 
-	return privateKey
-}
+// 	return privateKey
+// }
 
 func toChecksumAddress(address string) string {
 	address = strings.ToLower(strings.TrimPrefix(address, "0x"))
@@ -49,12 +49,7 @@ func toChecksumAddress(address string) string {
 	return checksummedAddress
 }
 
-func loadPrivateKey(key string) *ecdsa.PrivateKey {
-	privateKeyBytes, err := hex.DecodeString(key)
-	if err != nil {
-		panic(err)
-	}
-
+func loadPrivateKey(privateKeyBytes []byte) *ecdsa.PrivateKey {
 	privateKey, err := crypto.ToECDSA(privateKeyBytes)
 	if err != nil {
 		panic(err)
@@ -70,4 +65,11 @@ func shuffle(slice []uint32) []uint32 {
 		slice[i], slice[j] = slice[j], slice[i]
 	}
 	return slice
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

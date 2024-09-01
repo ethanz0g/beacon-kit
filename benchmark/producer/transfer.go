@@ -36,7 +36,6 @@ type generatorImlp struct {
 	signer     types.Signer
 	accountMap *AccountMap
 	txPool     chan *types.Transaction
-	taskPool   chan *task
 	poolSize   uint32
 }
 
@@ -53,36 +52,35 @@ func NewGenerator(numAccounts uint32, faucetPrivateKey string, ethClient *ethcli
 		accountMap: NewAccountMap(numAccounts, faucetPrivateKey),
 		poolSize:   numAccounts,
 		txPool:     make(chan *types.Transaction, numAccounts),
-		taskPool:   make(chan *task, 1024),
 	}, nil
 }
 
 func (g *generatorImlp) WarmUp() {
 	// make transfer from faucet account to other accounts
+	taskList := make([]*task, 0, g.accountMap.total)
 
-	go func() {
-		for i := 0; i < int(g.accountMap.total); i++ {
-			g.taskPool <- &task{
-				fromAccount: g.accountMap.GetFaucetAccount(),
-				toAccout:    g.accountMap.GetAccount(uint32(i)),
-				value:       defaultTransferVal,
-			}
-		}
-	}()
+	for i := 0; i < int(g.accountMap.total); i++ {
+		taskList = append(taskList, &task{
+			fromAccount: g.accountMap.GetFaucetAccount(),
+			toAccout:    g.accountMap.GetAccount(uint32(i)),
+			value:       defaultTransferVal,
+		})
+	}
 
-	swg := NewSizedWaitGroup(runtime.NumCPU())
-	for t := range g.taskPool {
+	limit := min(int(g.accountMap.total), runtime.NumCPU())
+	swg := NewSizedWaitGroup(limit)
+	for i := range taskList {
 		swg.Add()
 		go func(t *task) {
 			defer swg.Done()
 			tx, err := g.generateTransaction(t)
 			if err != nil {
+				println(err.Error())
 				return
 			}
 			g.txPool <- tx
-		}(t)
+		}(taskList[i])
 	}
-
 	swg.Wait()
 }
 
@@ -101,7 +99,7 @@ func (g *generatorImlp) generateTransaction(t *task) (*types.Transaction, error)
 
 	tx := types.NewTransaction(nonce, common.HexToAddress(t.toAccout.Address), big.NewInt(t.value), gasLimit, gasPrice, nil)
 
-	signedTx, err := types.SignTx(tx, g.signer, loadPrivateKey(string(t.fromAccount.PrivateKey)))
+	signedTx, err := types.SignTx(tx, g.signer, loadPrivateKey(t.fromAccount.PrivateKey))
 	if err != nil {
 		return nil, err
 	}
@@ -148,18 +146,17 @@ func (g *generatorImlp) GenerateGeneralTransfer(numTransfers int) []*types.Trans
 }
 
 func (g *generatorImlp) generateTransfer(paired [][2]uint32, value int64) {
-	go func() {
-		for i := 0; i < len(paired); i++ {
-			g.taskPool <- &task{
-				fromAccount: g.accountMap.GetAccount(paired[i][0]),
-				toAccout:    g.accountMap.GetAccount(paired[i][1]),
-				value:       value,
-			}
-		}
-	}()
+	taskList := make([]*task, 0, len(paired))
+	for i := 0; i < len(paired); i++ {
+		taskList = append(taskList, &task{
+			fromAccount: g.accountMap.GetAccount(paired[i][0]),
+			toAccout:    g.accountMap.GetAccount(paired[i][1]),
+			value:       value,
+		})
+	}
 
 	swg := NewSizedWaitGroup(runtime.NumCPU())
-	for t := range g.taskPool {
+	for i := range taskList {
 		swg.Add()
 		go func(t *task) {
 			defer swg.Done()
@@ -168,7 +165,7 @@ func (g *generatorImlp) generateTransfer(paired [][2]uint32, value int64) {
 				return
 			}
 			g.txPool <- tx
-		}(t)
+		}(taskList[i])
 	}
 
 	swg.Wait()

@@ -13,8 +13,11 @@ import (
 )
 
 const (
-	accountCount = 100000
+	accountCount     = 200
+	workloadPreBatch = accountCount
 )
+
+var generator producer.Generator
 
 func main() {
 	rpcUrl, _ := getParameters()
@@ -24,21 +27,19 @@ func main() {
 		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
 	}
 
-	g, err := producer.NewGenerator(accountCount, "faucet private key", client)
+	generator, err = producer.NewGenerator(accountCount, "0xfffdbb37105441e14b0ee6330d855d8504ff39e705c3afa8f859ac9865f99306", client)
 	if err != nil {
 		log.Fatalf("Failed to create the generator: %v", err)
 	}
 
-	g.WarmUp()
-	// load all to-be-sent transactions
-	workload := g.GenerateGeneralTransfer(accountCount)
+	generator.WarmUp()
 
 	startBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatalf("Failed to get the start block: %v", err)
 	}
 
-	sendWorkload(client, workload)
+	sendWorkload(client, getWorkload(workloadPreBatch))
 
 	endBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
@@ -97,5 +98,6 @@ func sendWorkload(client *ethclient.Client, workload [](*types.Transaction)) {
 }
 
 func getWorkload(n int) [](*types.Transaction) {
-	return [](*types.Transaction){}
+	// load all to-be-sent transactions
+	return generator.GenerateGeneralTransfer(n)
 }

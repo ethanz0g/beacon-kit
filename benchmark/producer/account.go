@@ -1,6 +1,11 @@
 package producer
 
-import "github.com/ethereum/go-ethereum/crypto"
+import (
+	"encoding/hex"
+	"strings"
+
+	"github.com/ethereum/go-ethereum/crypto"
+)
 
 type Account struct {
 	Index      uint32
@@ -12,7 +17,7 @@ type Account struct {
 }
 
 func NewAccount(index uint32) Account {
-	pk := generateEthSecp256k1PrivateKeyByUint32(index)
+	pk, _ := crypto.GenerateKey()
 	addr := crypto.PubkeyToAddress(pk.PublicKey).Hex()
 	return Account{
 		Index:      index,
@@ -25,7 +30,9 @@ func NewAccount(index uint32) Account {
 
 func CreateFaucetAccount(privateKey string) Account {
 	// get private key from genesis file
-	pk := loadPrivateKey(privateKey)
+	pks := strings.TrimPrefix(privateKey, "0x")
+	pkBytes, _ := hex.DecodeString(pks)
+	pk := loadPrivateKey(pkBytes)
 	addr := crypto.PubkeyToAddress(pk.PublicKey).Hex()
 	return Account{
 		IsFaucet:   true,
