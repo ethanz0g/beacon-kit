@@ -26,7 +26,7 @@ type task struct {
 }
 
 type Generator interface {
-	WarmUp()
+	WarmUp() error
 	GenerateGeneralTransfer(numTransfers int) []*types.Transaction
 }
 
@@ -55,13 +55,32 @@ func NewGenerator(numAccounts uint32, faucetPrivateKey string, ethClient *ethcli
 	}, nil
 }
 
-func (g *generatorImlp) WarmUp() {
+func (g *generatorImlp) WarmUp() error {
 	// make transfer from faucet account to other accounts
 	taskList := make([]*task, 0, g.accountMap.total)
 
+	ctx := context.Background()
+	faucetAcct := g.accountMap.GetFaucetAccount()
+	{
+		nonce, err := g.client.PendingNonceAt(ctx, common.HexToAddress(faucetAcct.Address))
+		if err != nil {
+			return err
+		}
+		faucetAcct.Nonce = nonce + 1
+	}
+
+	for i := 0; i < int(g.accountMap.total); i++ {
+		thisAccount := g.accountMap.GetAccount(uint32(i))
+		nonce, err := g.client.PendingNonceAt(ctx, common.HexToAddress(thisAccount.Address))
+		if err != nil {
+			return err
+		}
+		thisAccount.Nonce = nonce + 1
+	}
+
 	for i := 0; i < int(g.accountMap.total); i++ {
 		taskList = append(taskList, &task{
-			fromAccount: g.accountMap.GetFaucetAccount(),
+			fromAccount: faucetAcct,
 			toAccout:    g.accountMap.GetAccount(uint32(i)),
 			value:       defaultTransferVal,
 		})
@@ -82,21 +101,13 @@ func (g *generatorImlp) WarmUp() {
 		}(taskList[i])
 	}
 	swg.Wait()
+	return nil
 }
 
 func (g *generatorImlp) generateTransaction(t *task) (*types.Transaction, error) {
 	ctx := context.Background()
-	var nonce uint64
-	var err error
-	if t.fromAccount.Nonce == 0 {
-		nonce, err = g.client.PendingNonceAt(ctx, common.HexToAddress(t.fromAccount.Address))
-		if err != nil {
-			return nil, err
-		}
-		t.fromAccount.Nonce = nonce
-	} else {
-		nonce = t.fromAccount.GetAndIncrementNonce()
-	}
+
+	nonce := t.fromAccount.GetAndIncrementNonce()
 
 	gasLimit := defaultTransferGasLimit
 	gasPrice, err := g.client.SuggestGasPrice(ctx)

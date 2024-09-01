@@ -32,7 +32,10 @@ func main() {
 		log.Fatalf("Failed to create the generator: %v", err)
 	}
 
-	generator.WarmUp()
+	err = generator.WarmUp()
+	if err != nil {
+		log.Fatalf("Failed to warm up the generator: %v", err)
+	}
 
 	startBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
