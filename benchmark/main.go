@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"time"
 	"log"
 	"math/big"
 
@@ -13,7 +14,7 @@ import (
 )
 
 const (
-	accountCount     = 200
+	accountCount     = 20000
 	workloadPreBatch = accountCount
 )
 
@@ -37,12 +38,14 @@ func main() {
 		log.Fatalf("Failed to warm up the generator: %v", err)
 	}
 
+	workload := getWorkload(workloadPreBatch)
+
 	startBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatalf("Failed to get the start block: %v", err)
 	}
 
-	sendWorkload(client, getWorkload(workloadPreBatch))
+	sendWorkload(client, workload)
 
 	endBlock, err := client.BlockByNumber(context.Background(), nil)
 	if err != nil {
@@ -93,10 +96,13 @@ func getParameters() (string, int) {
 
 func sendWorkload(client *ethclient.Client, workload [](*types.Transaction)) {
 	for _, tx := range workload {
+		log.Printf("Tx nonce is %v", tx.Nonce())
 		err := client.SendTransaction(context.Background(), tx)
 		if err != nil {
+			log.Printf("err is %v", err)
 			log.Fatal("Failed to send transactions")
 		}
+		time.Sleep(400 * time.Microsecond)
 	}
 }
 

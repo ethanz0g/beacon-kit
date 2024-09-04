@@ -7,7 +7,8 @@ package producer
 import (
 	"context"
 	"math/big"
-	"runtime"
+	//"runtime"
+	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -17,6 +18,10 @@ import (
 const (
 	defaultTransferGasLimit = uint64(21000)
 	defaultTransferVal      = 1000000000
+)
+
+var (
+	mutex sync.Mutex
 )
 
 type task struct {
@@ -86,28 +91,24 @@ func (g *generatorImlp) WarmUp() error {
 		})
 	}
 
-	limit := min(int(g.accountMap.total), runtime.NumCPU())
-	swg := NewSizedWaitGroup(limit)
 	for i := range taskList {
-		swg.Add()
-		go func(t *task) {
-			defer swg.Done()
-			tx, err := g.generateTransaction(t)
-			if err != nil {
-				println(err.Error())
-				return
-			}
-			g.txPool <- tx
-		}(taskList[i])
+		t := taskList[i]
+		tx, err := g.generateTransaction(t)
+		if err != nil {
+			println(err.Error())
+			return err
+		}
+		g.txPool <- tx
 	}
-	swg.Wait()
 	return nil
 }
 
 func (g *generatorImlp) generateTransaction(t *task) (*types.Transaction, error) {
 	ctx := context.Background()
 
+	mutex.Lock()
 	nonce := t.fromAccount.GetAndIncrementNonce()
+	mutex.Unlock()
 
 	gasLimit := defaultTransferGasLimit
 	gasPrice, err := g.client.SuggestGasPrice(ctx)
@@ -173,18 +174,12 @@ func (g *generatorImlp) generateTransfer(paired [][2]uint32, value int64) {
 		})
 	}
 
-	swg := NewSizedWaitGroup(runtime.NumCPU())
 	for i := range taskList {
-		swg.Add()
-		go func(t *task) {
-			defer swg.Done()
-			tx, err := g.generateTransaction(t)
-			if err != nil {
-				return
-			}
-			g.txPool <- tx
-		}(taskList[i])
+		t := taskList[i]
+		tx, err := g.generateTransaction(t)
+		if err != nil {
+			return
+		}
+		g.txPool <- tx
 	}
-
-	swg.Wait()
 }
