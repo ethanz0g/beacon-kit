@@ -4,6 +4,8 @@
 ###                                Kurtosis                                 ###
 ###############################################################################
 
+SHELL := /bin/bash
+
 # Installs Kurtosis if not already installed
 install-kurtosis:
 	@echo "Checking for Kurtosis installation..."
